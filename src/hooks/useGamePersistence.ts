@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 const SESSION_KEY = "spelling-hive-session";
 
 const getSessionId = () => {
+  if (typeof window === 'undefined') return '';
+  
   let sessionId = localStorage.getItem(SESSION_KEY);
   if (!sessionId) {
     sessionId = crypto.randomUUID();
@@ -13,10 +15,15 @@ const getSessionId = () => {
 };
 
 export const useGamePersistence = () => {
-  const [sessionId] = useState(getSessionId());
+  const [sessionId] = useState(() => getSessionId());
   const [isLoaded, setIsLoaded] = useState(false);
 
   const loadProgress = async () => {
+    if (!sessionId) {
+      setIsLoaded(true);
+      return null;
+    }
+
     try {
       const today = new Date().toISOString().split('T')[0];
       
@@ -29,6 +36,7 @@ export const useGamePersistence = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading progress:', error);
+        setIsLoaded(true);
         return null;
       }
 
@@ -42,6 +50,8 @@ export const useGamePersistence = () => {
   };
 
   const saveProgress = async (score: number, wordsFound: string[], pangramsFound: string[]) => {
+    if (!sessionId) return;
+
     try {
       const today = new Date().toISOString().split('T')[0];
       
@@ -65,5 +75,5 @@ export const useGamePersistence = () => {
     }
   };
 
-  return { loadProgress, saveProgress, isLoaded };
+  return { loadProgress, saveProgress, isLoaded, sessionId };
 };
