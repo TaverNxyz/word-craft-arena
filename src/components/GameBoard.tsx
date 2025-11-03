@@ -5,22 +5,15 @@ import { ScorePanel } from "./ScorePanel";
 import { WordsList } from "./WordsList";
 import { shuffle } from "@/lib/gameUtils";
 import { toast } from "sonner";
+import { VALID_WORDS, PANGRAMS, MAX_SCORE } from "@/lib/wordList";
+import { useGamePersistence } from "@/hooks/useGamePersistence";
 
-// Game data - in a real app, this would come from an API
 const GAME_DATA = {
   centerLetter: "E",
   outerLetters: ["R", "T", "A", "C", "H", "S"],
-  validWords: [
-    "teacher", "earch", "search", "reaches", "teaches", "reach", "teach", "each", 
-    "rate", "care", "race", "case", "cast", "east", "heat", "seat", "tear", 
-    "tree", "rest", "test", "these", "chase", "cheat", "crate", "create", 
-    "stare", "haste", "taste", "react", "trace", "share", "scare", "heart",
-    "recast", "caster", "reacts", "traces", "cheater", "treachest", "teachers",
-    "searches", "catchers", "theaters", "hectares", "retches", "thatchers",
-    "searchest", "treaches", "reteach", "reteaches"
-  ],
-  pangrams: ["teachers", "searches", "catchers", "theaters", "hectares", "thatchers"],
-  maxScore: 420,
+  validWords: VALID_WORDS,
+  pangrams: PANGRAMS,
+  maxScore: MAX_SCORE,
 };
 
 export const GameBoard = () => {
@@ -28,7 +21,32 @@ export const GameBoard = () => {
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const [score, setScore] = useState(0);
   const [outerLetters, setOuterLetters] = useState(GAME_DATA.outerLetters);
+  const [rotation, setRotation] = useState(0);
+  const { loadProgress, saveProgress, isLoaded } = useGamePersistence();
   const allLetters = [GAME_DATA.centerLetter, ...outerLetters];
+
+  // Load saved progress on mount
+  useEffect(() => {
+    const loadSavedProgress = async () => {
+      const savedData = await loadProgress();
+      if (savedData) {
+        setScore(savedData.score);
+        setFoundWords(savedData.words_found || []);
+        toast.success("Progress restored!");
+      }
+    };
+    loadSavedProgress();
+  }, []);
+
+  // Auto-save progress whenever score or words change
+  useEffect(() => {
+    if (isLoaded && (score > 0 || foundWords.length > 0)) {
+      const pangramsFound = foundWords.filter(word => 
+        GAME_DATA.pangrams.includes(word.toLowerCase())
+      );
+      saveProgress(score, foundWords, pangramsFound);
+    }
+  }, [score, foundWords, isLoaded]);
 
   const handleLetterClick = (letter: string) => {
     setCurrentWord((prev) => prev + letter);
@@ -36,6 +54,7 @@ export const GameBoard = () => {
 
   const handleShuffle = () => {
     setOuterLetters(shuffle([...outerLetters]));
+    setRotation(prev => prev + 360);
     toast.info("Letters shuffled!");
   };
 
@@ -113,6 +132,7 @@ export const GameBoard = () => {
                   letter={GAME_DATA.centerLetter}
                   isCenter
                   onClick={() => handleLetterClick(GAME_DATA.centerLetter)}
+                  rotation={0}
                 />
               </div>
 
@@ -126,7 +146,7 @@ export const GameBoard = () => {
                 return (
                   <div
                     key={`${letter}-${index}`}
-                    className="absolute"
+                    className="absolute transition-transform duration-500"
                     style={{
                       transform: `translate(${x}px, ${y}px)`,
                     }}
@@ -134,6 +154,7 @@ export const GameBoard = () => {
                     <LetterHex
                       letter={letter}
                       onClick={() => handleLetterClick(letter)}
+                      rotation={rotation}
                     />
                   </div>
                 );

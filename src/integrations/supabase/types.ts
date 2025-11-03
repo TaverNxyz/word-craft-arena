@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      player_stats: {
+        Row: {
+          created_at: string
+          game_date: string
+          id: string
+          pangrams_found: string[]
+          score: number
+          session_id: string
+          updated_at: string
+          user_id: string | null
+          words_found: string[]
+        }
+        Insert: {
+          created_at?: string
+          game_date?: string
+          id?: string
+          pangrams_found?: string[]
+          score?: number
+          session_id: string
+          updated_at?: string
+          user_id?: string | null
+          words_found?: string[]
+        }
+        Update: {
+          created_at?: string
+          game_date?: string
+          id?: string
+          pangrams_found?: string[]
+          score?: number
+          session_id?: string
+          updated_at?: string
+          user_id?: string | null
+          words_found?: string[]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
