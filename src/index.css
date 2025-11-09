@@ -8,83 +8,89 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 13%;
+    --background: 240 15% 97%;
+    --foreground: 240 25% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 13%;
+    --card-foreground: 240 25% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 13%;
+    --popover-foreground: 240 25% 12%;
 
-    --primary: 48 100% 55%;
-    --primary-foreground: 0 0% 13%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 13%;
+    --secondary: 200 95% 90%;
+    --secondary-foreground: 240 25% 12%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 240 10% 95%;
+    --muted-foreground: 240 8% 46%;
 
-    --accent: 48 100% 55%;
-    --accent-foreground: 0 0% 13%;
+    --accent: 335 78% 56%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 48 100% 55%;
+    --border: 240 12% 88%;
+    --input: 240 12% 88%;
+    --ring: 262 83% 58%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --game-bg: 0 0% 100%;
-    --game-text: 0 0% 13%;
-    --hex-bg: 0 0% 90%;
-    --hex-center: 48 100% 55%;
-    --hex-text: 0 0% 13%;
-    --hex-hover: 48 100% 60%;
+    --game-bg: 240 15% 97%;
+    --game-text: 240 25% 12%;
+    --hex-bg: 240 20% 94%;
+    --hex-center: 262 83% 58%;
+    --hex-text: 240 25% 12%;
+    --hex-hover: 262 83% 65%;
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
+    
+    --velarix-gradient: linear-gradient(135deg, hsl(262 83% 58%), hsl(335 78% 56%));
+    --velarix-glow: 0 8px 32px hsla(262, 83%, 58%, 0.15);
   }
 
   .dark {
-    --background: 0 0% 13%;
-    --foreground: 0 0% 98%;
+    --background: 240 25% 8%;
+    --foreground: 240 10% 96%;
 
-    --card: 0 0% 16%;
-    --card-foreground: 0 0% 98%;
+    --card: 240 20% 12%;
+    --card-foreground: 240 10% 96%;
 
-    --popover: 0 0% 16%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 240 20% 12%;
+    --popover-foreground: 240 10% 96%;
 
-    --primary: 48 100% 55%;
-    --primary-foreground: 0 0% 13%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 240 18% 18%;
+    --secondary-foreground: 240 10% 96%;
 
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 240 18% 18%;
+    --muted-foreground: 240 8% 60%;
 
-    --accent: 48 100% 55%;
-    --accent-foreground: 0 0% 13%;
+    --accent: 335 78% 56%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 24%;
-    --input: 0 0% 24%;
-    --ring: 48 100% 55%;
+    --border: 240 15% 20%;
+    --input: 240 15% 20%;
+    --ring: 262 83% 58%;
 
-    --game-bg: 0 0% 13%;
-    --game-text: 0 0% 98%;
-    --hex-bg: 0 0% 24%;
-    --hex-center: 48 100% 55%;
-    --hex-text: 0 0% 98%;
-    --hex-hover: 48 100% 60%;
+    --game-bg: 240 25% 8%;
+    --game-text: 240 10% 96%;
+    --hex-bg: 240 20% 16%;
+    --hex-center: 262 83% 58%;
+    --hex-text: 240 10% 96%;
+    --hex-hover: 262 83% 65%;
     --success: 142 70% 45%;
     --warning: 38 92% 50%;
+    
+    --velarix-gradient: linear-gradient(135deg, hsl(262 83% 58%), hsl(335 78% 56%));
+    --velarix-glow: 0 8px 32px hsla(262, 83%, 58%, 0.3);
   }
 }
 

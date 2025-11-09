@@ -5,25 +5,18 @@ import { ScorePanel } from "./ScorePanel";
 import { WordsList } from "./WordsList";
 import { shuffle } from "@/lib/gameUtils";
 import { toast } from "sonner";
-import { VALID_WORDS, PANGRAMS, MAX_SCORE } from "@/lib/wordList";
+import { getTodaysPuzzle } from "@/lib/puzzleGenerator";
 import { useGamePersistence } from "@/hooks/useGamePersistence";
 
-const GAME_DATA = {
-  centerLetter: "E",
-  outerLetters: ["R", "T", "A", "C", "H", "S"],
-  validWords: VALID_WORDS,
-  pangrams: PANGRAMS,
-  maxScore: MAX_SCORE,
-};
-
 export const GameBoard = () => {
+  const [puzzle] = useState(() => getTodaysPuzzle());
   const [currentWord, setCurrentWord] = useState("");
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const [score, setScore] = useState(0);
-  const [outerLetters, setOuterLetters] = useState(GAME_DATA.outerLetters);
+  const [outerLetters, setOuterLetters] = useState(puzzle.outerLetters);
   const [rotation, setRotation] = useState(0);
   const { loadProgress, saveProgress, isLoaded } = useGamePersistence();
-  const allLetters = [GAME_DATA.centerLetter, ...outerLetters];
+  const allLetters = [puzzle.centerLetter, ...outerLetters];
 
   // Load saved progress on mount
   useEffect(() => {
@@ -42,11 +35,11 @@ export const GameBoard = () => {
   useEffect(() => {
     if (isLoaded && (score > 0 || foundWords.length > 0)) {
       const pangramsFound = foundWords.filter(word => 
-        GAME_DATA.pangrams.includes(word.toLowerCase())
+        puzzle.pangrams.includes(word.toLowerCase())
       );
       saveProgress(score, foundWords, pangramsFound);
     }
-  }, [score, foundWords, isLoaded]);
+  }, [score, foundWords, isLoaded, puzzle.pangrams, saveProgress]);
 
   const handleLetterClick = (letter: string) => {
     setCurrentWord((prev) => prev + letter);
@@ -64,7 +57,7 @@ export const GameBoard = () => {
 
   const calculateScore = (word: string) => {
     if (word.length === 4) return 1;
-    if (GAME_DATA.pangrams.includes(word.toLowerCase())) return word.length + 7;
+    if (puzzle.pangrams.includes(word.toLowerCase())) return word.length + 7;
     return word.length;
   };
 
@@ -76,8 +69,8 @@ export const GameBoard = () => {
       return;
     }
 
-    if (!word.includes(GAME_DATA.centerLetter.toLowerCase())) {
-      toast.error(`Word must contain ${GAME_DATA.centerLetter}!`);
+    if (!word.includes(puzzle.centerLetter.toLowerCase())) {
+      toast.error(`Word must contain ${puzzle.centerLetter}!`);
       return;
     }
 
@@ -86,13 +79,13 @@ export const GameBoard = () => {
       return;
     }
 
-    if (!GAME_DATA.validWords.includes(word)) {
+    if (!puzzle.validWords.includes(word)) {
       toast.error("Not in word list!");
       return;
     }
 
     const wordScore = calculateScore(word);
-    const isPangram = GAME_DATA.pangrams.includes(word);
+    const isPangram = puzzle.pangrams.includes(word);
     
     setFoundWords([...foundWords, word]);
     setScore(score + wordScore);
@@ -111,13 +104,15 @@ export const GameBoard = () => {
     <div className="min-h-screen bg-game-bg flex flex-col items-center justify-start p-4 md:p-8">
       <div className="w-full max-w-6xl">
         <header className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-game-text mb-2">Spelling Hive</h1>
-          <p className="text-muted-foreground">Create words using the letters below</p>
+          <div className="inline-block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold mb-2">Velarix</h1>
+          </div>
+          <p className="text-muted-foreground text-lg">Daily Word Puzzle</p>
         </header>
 
         <div className="grid md:grid-cols-[1fr_400px] gap-8">
           <div className="flex flex-col items-center gap-6">
-            <ScorePanel score={score} maxScore={GAME_DATA.maxScore} foundWords={foundWords.length} />
+            <ScorePanel score={score} maxScore={puzzle.maxScore} foundWords={foundWords.length} />
             
             <div className="w-full max-w-md bg-card rounded-lg p-4 mb-4">
               <div className="text-center text-2xl md:text-3xl font-bold text-game-text min-h-[50px] flex items-center justify-center uppercase border-b-2 border-border pb-4">
@@ -129,9 +124,9 @@ export const GameBoard = () => {
               {/* Center hexagon */}
               <div className="absolute">
                 <LetterHex
-                  letter={GAME_DATA.centerLetter}
+                  letter={puzzle.centerLetter}
                   isCenter
-                  onClick={() => handleLetterClick(GAME_DATA.centerLetter)}
+                  onClick={() => handleLetterClick(puzzle.centerLetter)}
                   rotation={0}
                 />
               </div>
@@ -168,7 +163,7 @@ export const GameBoard = () => {
             />
           </div>
 
-          <WordsList words={foundWords} pangrams={GAME_DATA.pangrams} />
+          <WordsList words={foundWords} pangrams={puzzle.pangrams} />
         </div>
       </div>
     </div>

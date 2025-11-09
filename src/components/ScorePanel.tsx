@@ -27,15 +27,15 @@ export const ScorePanel = ({ score, maxScore, foundWords }: ScorePanelProps) => 
   const rank = getRank(score, maxScore);
 
   return (
-    <Card className="w-full max-w-md p-6 bg-card">
+    <Card className="w-full max-w-md p-6 bg-card shadow-[var(--velarix-glow)]">
       <div className="space-y-4">
         <div className="flex justify-between items-baseline">
           <div>
             <p className="text-sm text-muted-foreground">Your rank</p>
-            <h2 className="text-2xl font-bold text-game-text">{rank}</h2>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{rank}</h2>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-primary">{score}</p>
+            <p className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{score}</p>
             <p className="text-sm text-muted-foreground">points</p>
           </div>
         </div>
