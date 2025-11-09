@@ -37,9 +37,9 @@ export const GameBoard = () => {
       const pangramsFound = foundWords.filter(word => 
         puzzle.pangrams.includes(word.toLowerCase())
       );
-      saveProgress(score, foundWords, pangramsFound);
+      saveProgress(score, foundWords, pangramsFound, puzzle.maxScore);
     }
-  }, [score, foundWords, isLoaded, puzzle.pangrams, saveProgress]);
+  }, [score, foundWords, isLoaded, puzzle.pangrams, puzzle.maxScore, saveProgress]);
 
   const handleLetterClick = (letter: string) => {
     setCurrentWord((prev) => prev + letter);
@@ -104,9 +104,6 @@ export const GameBoard = () => {
     <div className="min-h-screen bg-game-bg flex flex-col items-center justify-start p-4 md:p-8">
       <div className="w-full max-w-6xl">
         <header className="text-center mb-8">
-          <div className="inline-block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            <h1 className="text-5xl md:text-6xl font-bold mb-2">Velarix</h1>
-          </div>
           <p className="text-muted-foreground text-lg">Daily Word Puzzle</p>
         </header>
 

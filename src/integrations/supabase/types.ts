@@ -16,9 +16,14 @@ export type Database = {
     Tables: {
       player_stats: {
         Row: {
+          best_rank: string | null
+          best_streak: number | null
           created_at: string
+          current_streak: number | null
           game_date: string
+          games_played: number | null
           id: string
+          last_played_date: string | null
           pangrams_found: string[]
           score: number
           session_id: string
@@ -27,9 +32,14 @@ export type Database = {
           words_found: string[]
         }
         Insert: {
+          best_rank?: string | null
+          best_streak?: number | null
           created_at?: string
+          current_streak?: number | null
           game_date?: string
+          games_played?: number | null
           id?: string
+          last_played_date?: string | null
           pangrams_found?: string[]
           score?: number
           session_id: string
@@ -38,9 +48,14 @@ export type Database = {
           words_found?: string[]
         }
         Update: {
+          best_rank?: string | null
+          best_streak?: number | null
           created_at?: string
+          current_streak?: number | null
           game_date?: string
+          games_played?: number | null
           id?: string
+          last_played_date?: string | null
           pangrams_found?: string[]
           score?: number
           session_id?: string
