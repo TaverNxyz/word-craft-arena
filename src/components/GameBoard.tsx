@@ -34,7 +34,7 @@ export const GameBoard = () => {
   // Auto-save progress whenever score or words change
   useEffect(() => {
     if (isLoaded && (score > 0 || foundWords.length > 0)) {
-      const pangramsFound = foundWords.filter(word => 
+      const pangramsFound = foundWords.filter((word) =>
         puzzle.pangrams.includes(word.toLowerCase())
       );
       saveProgress(score, foundWords, pangramsFound, puzzle.maxScore);
@@ -47,7 +47,7 @@ export const GameBoard = () => {
 
   const handleShuffle = () => {
     setOuterLetters(shuffle([...outerLetters]));
-    setRotation(prev => prev + 360);
+    setRotation((prev) => prev + 360);
     toast.info("Letters shuffled!");
   };
 
@@ -63,7 +63,7 @@ export const GameBoard = () => {
 
   const handleSubmit = () => {
     const word = currentWord.toLowerCase();
-    
+
     if (word.length < 4) {
       toast.error("Word must be at least 4 letters!");
       return;
@@ -86,19 +86,38 @@ export const GameBoard = () => {
 
     const wordScore = calculateScore(word);
     const isPangram = puzzle.pangrams.includes(word);
-    
+
     setFoundWords([...foundWords, word]);
     setScore(score + wordScore);
     setCurrentWord("");
-    
+
     if (isPangram) {
-      toast.success(`🎉 Pangram! +${wordScore} points!`, {
-        duration: 3000,
-      });
+      toast.success(`🎉 Pangram! +${wordScore} points!`, { duration: 3000 });
     } else {
       toast.success(`+${wordScore} points!`);
     }
   };
+
+  // ✅ Keyboard input support
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+
+      if (key === "backspace") {
+        event.preventDefault();
+        handleDelete();
+      } else if (key === "enter") {
+        event.preventDefault();
+        handleSubmit();
+      } else if (/^[a-z]$/.test(key)) {
+        const upper = key.toUpperCase();
+        if (allLetters.includes(upper)) handleLetterClick(upper);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [allLetters, currentWord]);
 
   return (
     <div className="min-h-screen bg-game-bg flex flex-col items-center justify-start p-4 md:p-8">
@@ -110,10 +129,12 @@ export const GameBoard = () => {
         <div className="grid md:grid-cols-[1fr_400px] gap-8">
           <div className="flex flex-col items-center gap-6">
             <ScorePanel score={score} maxScore={puzzle.maxScore} foundWords={foundWords.length} />
-            
+
             <div className="w-full max-w-md bg-card rounded-lg p-4 mb-4">
               <div className="text-center text-2xl md:text-3xl font-bold text-game-text min-h-[50px] flex items-center justify-center uppercase border-b-2 border-border pb-4">
-                {currentWord || <span className="text-muted-foreground">Type or click letters</span>}
+                {currentWord || (
+                  <span className="text-muted-foreground">Type or click letters</span>
+                )}
               </div>
             </div>
 
@@ -153,11 +174,7 @@ export const GameBoard = () => {
               })}
             </div>
 
-            <GameControls
-              onShuffle={handleShuffle}
-              onDelete={handleDelete}
-              onSubmit={handleSubmit}
-            />
+            <GameControls onShuffle={handleShuffle} onDelete={handleDelete} onSubmit={handleSubmit} />
           </div>
 
           <WordsList words={foundWords} pangrams={puzzle.pangrams} />
