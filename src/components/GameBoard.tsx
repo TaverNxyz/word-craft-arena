@@ -18,7 +18,7 @@ export const GameBoard = () => {
   const { loadProgress, saveProgress, isLoaded } = useGamePersistence();
   const allLetters = [puzzle.centerLetter, ...outerLetters];
 
-  // Load saved progress on mount
+  // Load saved progress
   useEffect(() => {
     const loadSavedProgress = async () => {
       const savedData = await loadProgress();
@@ -31,7 +31,7 @@ export const GameBoard = () => {
     loadSavedProgress();
   }, []);
 
-  // Auto-save progress whenever score or words change
+  // Auto-save
   useEffect(() => {
     if (isLoaded && (score > 0 || foundWords.length > 0)) {
       const pangramsFound = foundWords.filter((word) =>
@@ -41,28 +41,35 @@ export const GameBoard = () => {
     }
   }, [score, foundWords, isLoaded, puzzle.pangrams, puzzle.maxScore, saveProgress]);
 
+  // Letter click
   const handleLetterClick = (letter: string) => {
     setCurrentWord((prev) => prev + letter);
   };
 
+  // Delete last letter
+  const handleDelete = () => {
+    setCurrentWord((prev) => prev.slice(0, -1));
+  };
+
+  // Shuffle outer letters
   const handleShuffle = () => {
     setOuterLetters(shuffle([...outerLetters]));
     setRotation((prev) => prev + 360);
     toast.info("Letters shuffled!");
   };
 
-  const handleDelete = () => {
-    setCurrentWord((prev) => prev.slice(0, -1));
-  };
-
+  // Calculate score
   const calculateScore = (word: string) => {
     if (word.length === 4) return 1;
     if (puzzle.pangrams.includes(word.toLowerCase())) return word.length + 7;
     return word.length;
   };
 
+  // Submit current word
   const handleSubmit = () => {
     const word = currentWord.toLowerCase();
+
+    if (!word) return; // ignore empty
 
     if (word.length < 4) {
       toast.error("Word must be at least 4 letters!");
@@ -98,26 +105,32 @@ export const GameBoard = () => {
     }
   };
 
-  // ✅ Keyboard input support
+  // ✅ Keyboard typing support (free typing)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
+      const key = event.key;
 
-      if (key === "backspace") {
+      if (key === "Backspace") {
         event.preventDefault();
         handleDelete();
-      } else if (key === "enter") {
+        return;
+      }
+
+      if (key === "Enter") {
         event.preventDefault();
         handleSubmit();
-      } else if (/^[a-z]$/.test(key)) {
-        const upper = key.toUpperCase();
-        if (allLetters.includes(upper)) handleLetterClick(upper);
+        return;
+      }
+
+      // Only letters A-Z
+      if (/^[a-zA-Z]$/.test(key)) {
+        setCurrentWord((prev) => prev + key.toUpperCase());
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [allLetters, currentWord]);
+  }, [currentWord]);
 
   return (
     <div className="min-h-screen bg-game-bg flex flex-col items-center justify-start p-4 md:p-8">
@@ -128,7 +141,11 @@ export const GameBoard = () => {
 
         <div className="grid md:grid-cols-[1fr_400px] gap-8">
           <div className="flex flex-col items-center gap-6">
-            <ScorePanel score={score} maxScore={puzzle.maxScore} foundWords={foundWords.length} />
+            <ScorePanel
+              score={score}
+              maxScore={puzzle.maxScore}
+              foundWords={foundWords.length}
+            />
 
             <div className="w-full max-w-md bg-card rounded-lg p-4 mb-4">
               <div className="text-center text-2xl md:text-3xl font-bold text-game-text min-h-[50px] flex items-center justify-center uppercase border-b-2 border-border pb-4">
@@ -149,7 +166,7 @@ export const GameBoard = () => {
                 />
               </div>
 
-              {/* Outer hexagons in circle */}
+              {/* Outer hexagons */}
               {outerLetters.map((letter, index) => {
                 const angle = (index * 60 - 90) * (Math.PI / 180);
                 const radius = 85;
@@ -160,9 +177,7 @@ export const GameBoard = () => {
                   <div
                     key={`${letter}-${index}`}
                     className="absolute transition-transform duration-500"
-                    style={{
-                      transform: `translate(${x}px, ${y}px)`,
-                    }}
+                    style={{ transform: `translate(${x}px, ${y}px)` }}
                   >
                     <LetterHex
                       letter={letter}
@@ -174,7 +189,11 @@ export const GameBoard = () => {
               })}
             </div>
 
-            <GameControls onShuffle={handleShuffle} onDelete={handleDelete} onSubmit={handleSubmit} />
+            <GameControls
+              onShuffle={handleShuffle}
+              onDelete={handleDelete}
+              onSubmit={handleSubmit}
+            />
           </div>
 
           <WordsList words={foundWords} pangrams={puzzle.pangrams} />
