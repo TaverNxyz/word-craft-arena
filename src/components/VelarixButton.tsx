@@ -8,7 +8,7 @@ export const VelarixButton = () => {
       className="fixed bottom-6 right-6 shadow-[var(--velarix-glow)] bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity z-50"
     >
       <a
-        href="https://velarix.com"
+        href="https://velarixsolutions.nl"
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-2"
