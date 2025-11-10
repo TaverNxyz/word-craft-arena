@@ -1,3 +1,16 @@
+import { RefreshCw } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { LetterHex } from "./LetterHex";
 import { GameControls } from "./GameControls";
@@ -9,7 +22,8 @@ import { getTodaysPuzzle } from "@/lib/puzzleGenerator";
 import { useGamePersistence } from "@/hooks/useGamePersistence";
 
 export const GameBoard = () => {
-  const [puzzle] = useState(() => getTodaysPuzzle());
+  const [forceDate, setForceDate] = useState<string | null>(null);
+  const [puzzle, setPuzzle] = useState(() => getTodaysPuzzle(forceDate));
   const [currentWord, setCurrentWord] = useState("");
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const [score, setScore] = useState(0);
@@ -29,7 +43,7 @@ export const GameBoard = () => {
       }
     };
     loadSavedProgress();
-  }, []);
+  }, [loadProgress]);
 
   // Auto-save
   useEffect(() => {
@@ -40,6 +54,26 @@ export const GameBoard = () => {
       saveProgress(score, foundWords, pangramsFound, puzzle.maxScore);
     }
   }, [score, foundWords, isLoaded, puzzle.pangrams, puzzle.maxScore, saveProgress]);
+
+  // Handle force roll - generate new puzzle
+  const handleForceRoll = () => {
+    // Generate a random date offset (between 1 and 365 days)
+    const randomOffset = Math.floor(Math.random() * 365) + 1;
+    const newDate = new Date();
+    newDate.setDate(newDate.getDate() + randomOffset);
+    const dateString = newDate.toISOString().split('T')[0];
+    
+    setForceDate(dateString);
+    const newPuzzle = getTodaysPuzzle(dateString);
+    setPuzzle(newPuzzle);
+    setOuterLetters(newPuzzle.outerLetters);
+    setCurrentWord("");
+    setFoundWords([]);
+    setScore(0);
+    setRotation(0);
+    
+    toast.success("New puzzle loaded! 🎲");
+  };
 
   // Letter click
   const handleLetterClick = (letter: string) => {
@@ -137,6 +171,35 @@ export const GameBoard = () => {
       <div className="w-full max-w-6xl">
         <header className="text-center mb-8">
           <p className="text-muted-foreground text-lg">Daily Word Puzzle</p>
+          <div className="mt-4">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  New Puzzle
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Get a new puzzle?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will reset your current progress and give you a completely new puzzle. 
+                    Your current game will not be saved.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleForceRoll}>
+                    Get New Puzzle
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </header>
 
         <div className="grid md:grid-cols-[1fr_400px] gap-8">
