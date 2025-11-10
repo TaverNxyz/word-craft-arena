@@ -79,33 +79,75 @@ export const generatePuzzle = (centerLetter: string, outerLetters: string[]): Pu
 };
 
 /**
- * Pick random letters and generate a puzzle
+ * Generate a seeded random number (for consistent daily puzzles)
+ */
+const seededRandom = (seed: number): number => {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+};
+
+/**
+ * Shuffle array with seed for consistency
+ */
+const shuffleWithSeed = <T>(array: T[], seed: number): T[] => {
+  const shuffled = [...array];
+  let currentIndex = shuffled.length;
+  
+  while (currentIndex !== 0) {
+    seed = (seed * 9301 + 49297) % 233280;
+    const randomIndex = Math.floor((seed / 233280) * currentIndex);
+    currentIndex--;
+    [shuffled[currentIndex], shuffled[randomIndex]] = [
+      shuffled[randomIndex],
+      shuffled[currentIndex],
+    ];
+  }
+  
+  return shuffled;
+};
+
+/**
+ * Get numeric seed from date string
+ */
+const getDateSeed = (dateString?: string | null): number => {
+  const date = dateString ? new Date(dateString) : new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return year * 10000 + month * 100 + day;
+};
+
+/**
+ * Pick random letters and generate a puzzle (with optional seed for consistency)
  * Ensures at least some valid words exist
  */
-export const generateRandomPuzzle = (): PuzzleData => {
+export const generateRandomPuzzle = (seed?: number): PuzzleData => {
   const vowels = ['a', 'e', 'i', 'o', 'u'];
   const commonConsonants = ['r', 't', 'n', 's', 'l', 'c', 'd', 'p', 'g', 'h', 'm', 'b'];
   
   let attempts = 0;
   const maxAttempts = 100;
+  const useSeed = seed !== undefined;
+  let currentSeed = seed || 0;
   
   while (attempts < maxAttempts) {
     // Pick 2-3 vowels and 4-5 consonants for better word coverage
-    const numVowels = Math.random() > 0.5 ? 2 : 3;
+    const numVowels = (useSeed ? seededRandom(currentSeed++) : Math.random()) > 0.5 ? 2 : 3;
     const numConsonants = 7 - numVowels;
     
-    const selectedVowels = [...vowels]
-      .sort(() => Math.random() - 0.5)
+    const selectedVowels = shuffleWithSeed(vowels, currentSeed++)
       .slice(0, numVowels);
     
-    const selectedConsonants = [...commonConsonants]
-      .sort(() => Math.random() - 0.5)
+    const selectedConsonants = shuffleWithSeed(commonConsonants, currentSeed++)
       .slice(0, numConsonants);
     
     const allLetters = [...selectedVowels, ...selectedConsonants];
     
     // Prefer a vowel or common consonant as center
-    const centerLetter = allLetters[Math.floor(Math.random() * allLetters.length)];
+    const centerIndex = useSeed 
+      ? Math.floor(seededRandom(currentSeed++) * allLetters.length)
+      : Math.floor(Math.random() * allLetters.length);
+    const centerLetter = allLetters[centerIndex];
     const outerLetters = allLetters.filter(l => l !== centerLetter);
     
     const puzzle = generatePuzzle(centerLetter, outerLetters);
@@ -116,6 +158,7 @@ export const generateRandomPuzzle = (): PuzzleData => {
     }
     
     attempts++;
+    currentSeed += 10; // Jump seed for next attempt
   }
   
   // Fallback to a known good puzzle
@@ -124,28 +167,39 @@ export const generateRandomPuzzle = (): PuzzleData => {
 
 /**
  * Get or create today's puzzle (same puzzle for the whole day)
+ * Can optionally force a specific date for new puzzles
  */
-export const getTodaysPuzzle = (): PuzzleData => {
-  const today = new Date().toDateString();
-  const stored = localStorage.getItem('velarix-daily-puzzle');
+export const getTodaysPuzzle = (forcedDate?: string | null): PuzzleData => {
+  const dateKey = forcedDate || new Date().toDateString();
+  const storageKey = `velarix-daily-puzzle-${dateKey}`;
   
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed.date === today) {
-        return parsed.puzzle;
+  // If not forcing a date, try to load today's puzzle from storage
+  if (!forcedDate) {
+    const stored = localStorage.getItem('velarix-daily-puzzle');
+    
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.date === dateKey) {
+          return parsed.puzzle;
+        }
+      } catch (e) {
+        console.error('Failed to parse stored puzzle:', e);
       }
-    } catch (e) {
-      console.error('Failed to parse stored puzzle:', e);
     }
   }
   
-  // Generate new puzzle for today
-  const puzzle = generateRandomPuzzle();
-  localStorage.setItem('velarix-daily-puzzle', JSON.stringify({
-    date: today,
-    puzzle,
-  }));
+  // Generate new puzzle with seed based on date
+  const seed = getDateSeed(forcedDate);
+  const puzzle = generateRandomPuzzle(seed);
+  
+  // Only save to main storage if it's today's actual puzzle (not forced)
+  if (!forcedDate) {
+    localStorage.setItem('velarix-daily-puzzle', JSON.stringify({
+      date: dateKey,
+      puzzle,
+    }));
+  }
   
   return puzzle;
 };
