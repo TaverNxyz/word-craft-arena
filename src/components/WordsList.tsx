@@ -11,7 +11,7 @@ export const WordsList = ({ words, pangrams }: WordsListProps) => {
   const sortedWords = [...words].sort();
 
   return (
-    <Card className="p-6 bg-card h-fit md:sticky md:top-8">
+    <Card className="p-6 bg-card/80 backdrop-blur-sm h-fit md:sticky md:top-8">
       <h3 className="text-xl font-bold text-game-text mb-4">
         Your Words ({words.length})
       </h3>
