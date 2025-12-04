@@ -102,6 +102,9 @@ export const GameBoard = () => {
   // Submit current word
   const handleSubmit = () => {
     const word = currentWord.toLowerCase();
+    
+    // Always clear input after pressing enter
+    setCurrentWord("");
 
     if (!word) return; // ignore empty
 
@@ -130,7 +133,6 @@ export const GameBoard = () => {
 
     setFoundWords([...foundWords, word]);
     setScore(score + wordScore);
-    setCurrentWord("");
 
     if (isPangram) {
       toast.success(`🎉 Pangram! +${wordScore} points!`, { duration: 3000 });
