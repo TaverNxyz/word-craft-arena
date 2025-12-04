@@ -10,7 +10,7 @@ export const Navigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="w-full bg-card border-b border-border">
+    <nav className="w-full bg-card/80 backdrop-blur-sm border-b border-border relative z-20">
       <div className="max-w-6xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">

@@ -29,6 +29,7 @@ export const GameBoard = () => {
   const [score, setScore] = useState(0);
   const [outerLetters, setOuterLetters] = useState(puzzle.outerLetters);
   const [rotation, setRotation] = useState(0);
+  const [isShaking, setIsShaking] = useState(false);
   const { loadProgress, saveProgress, isLoaded } = useGamePersistence();
   const allLetters = [puzzle.centerLetter, ...outerLetters];
 
@@ -99,6 +100,12 @@ export const GameBoard = () => {
     return word.length;
   };
 
+  // Trigger shake animation
+  const triggerShake = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 500);
+  };
+
   // Submit current word
   const handleSubmit = () => {
     const word = currentWord.toLowerCase();
@@ -109,21 +116,25 @@ export const GameBoard = () => {
     if (!word) return; // ignore empty
 
     if (word.length < 4) {
+      triggerShake();
       toast.error("Word must be at least 4 letters!");
       return;
     }
 
     if (!word.includes(puzzle.centerLetter.toLowerCase())) {
+      triggerShake();
       toast.error(`Word must contain ${puzzle.centerLetter}!`);
       return;
     }
 
     if (foundWords.includes(word)) {
+      triggerShake();
       toast.error("Already found!");
       return;
     }
 
     if (!puzzle.validWords.includes(word)) {
+      triggerShake();
       toast.error("Not in word list!");
       return;
     }
@@ -169,7 +180,7 @@ export const GameBoard = () => {
   }, [currentWord]);
 
   return (
-    <div className="min-h-screen bg-game-bg flex flex-col items-center justify-start p-4 md:p-8">
+    <div className="min-h-screen bg-transparent flex flex-col items-center justify-start p-4 md:p-8 relative z-10">
       <div className="w-full max-w-6xl">
         <header className="text-center mb-8">
           <p className="text-muted-foreground text-lg">Daily Word Puzzle</p>
@@ -212,7 +223,7 @@ export const GameBoard = () => {
               foundWords={foundWords.length}
             />
 
-            <div className="w-full max-w-md bg-card rounded-lg p-4 mb-4">
+            <div className={`w-full max-w-md bg-card/80 backdrop-blur-sm rounded-lg p-4 mb-4 ${isShaking ? 'animate-shake' : ''}`}>
               <div className="text-center text-2xl md:text-3xl font-bold text-game-text min-h-[50px] flex items-center justify-center uppercase border-b-2 border-border pb-4">
                 {currentWord || (
                   <span className="text-muted-foreground">Type or click letters</span>

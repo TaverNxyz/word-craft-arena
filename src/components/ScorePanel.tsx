@@ -27,7 +27,7 @@ export const ScorePanel = ({ score, maxScore, foundWords }: ScorePanelProps) => 
   const rank = getRank(score, maxScore);
 
   return (
-    <Card className="w-full max-w-md p-6 bg-card shadow-[var(--velarix-glow)]">
+    <Card className="w-full max-w-md p-6 bg-card/80 backdrop-blur-sm shadow-[var(--velarix-glow)]">
       <div className="space-y-4">
         <div className="flex justify-between items-baseline">
           <div>
